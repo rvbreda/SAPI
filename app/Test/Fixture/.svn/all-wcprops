@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/tccefr/!svn/ver/11/port/app/Test/Fixture
+END
+ProposalFixture.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/tccefr/!svn/ver/11/port/app/Test/Fixture/ProposalFixture.php
+END
+GroupFixture.php
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/tccefr/!svn/ver/3/port/app/Test/Fixture/GroupFixture.php
+END
+AreaFixture.php
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/tccefr/!svn/ver/11/port/app/Test/Fixture/AreaFixture.php
+END
+UserFixture.php
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/tccefr/!svn/ver/3/port/app/Test/Fixture/UserFixture.php
+END
+empty
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/tccefr/!svn/ver/3/port/app/Test/Fixture/empty
+END

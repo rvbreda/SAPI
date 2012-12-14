@@ -1,0 +1,132 @@
+10
+
+dir
+30
+https://riouxsvn.com/svn/tccefr/port/app
+https://riouxsvn.com/svn/tccefr
+
+
+
+2012-10-23T20:20:56.131459Z
+30
+econte
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+efff8d9b-ca7c-4dd3-be68-6a7aa0392421
+
+.htaccess
+file
+
+
+
+
+2012-10-24T17:02:02.356000Z
+a2a9efe935decfd5f498bf0d83075574
+2012-07-18T23:24:06.324760Z
+3
+econte
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+140
+
+Config
+dir
+
+Console
+dir
+
+Controller
+dir
+
+Lib
+dir
+
+Locale
+dir
+
+Model
+dir
+
+Plugin
+dir
+
+Test
+dir
+
+Vendor
+dir
+
+View
+dir
+
+index.php
+file
+
+
+
+
+2012-10-24T17:02:02.396000Z
+df8457c55ab1921476c240f693df6a16
+2012-07-18T23:24:06.324760Z
+3
+econte
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+642
+
+tmp
+dir
+
+webroot
+dir
+

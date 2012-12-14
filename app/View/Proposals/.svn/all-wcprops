@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/tccefr/!svn/ver/27/port/app/View/Proposals
+END
+add.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/tccefr/!svn/ver/45/port/app/View/Proposals/add.ctp
+END
+index.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/tccefr/!svn/ver/48/port/app/View/Proposals/index.ctp
+END
+view.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/tccefr/!svn/ver/11/port/app/View/Proposals/view.ctp
+END
+evaluate.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/tccefr/!svn/ver/23/port/app/View/Proposals/evaluate.ctp
+END
+pending_proposals.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/tccefr/!svn/ver/32/port/app/View/Proposals/pending_proposals.ctp
+END
+view_for_evaluate.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/tccefr/!svn/ver/42/port/app/View/Proposals/view_for_evaluate.ctp
+END
+edit.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/tccefr/!svn/ver/41/port/app/View/Proposals/edit.ctp
+END
+evaluate_reproposal.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/tccefr/!svn/ver/41/port/app/View/Proposals/evaluate_reproposal.ctp
+END

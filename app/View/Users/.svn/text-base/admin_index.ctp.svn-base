@@ -1,0 +1,51 @@
+<div class="grid_12">
+    <h1>Lista de usuários</h1>
+</div>
+<div class="users index">
+	<table cellpadding="0" class="fill" cellspacing="0" id="rounded-corner">
+	<tr>
+			<th><?php echo $this->Paginator->sort('group_id','Grupo');?></th>
+			<th><?php echo $this->Paginator->sort('name','Nome');?></th>
+			<th><?php echo $this->Paginator->sort('surname','Sobrenome');?></th>
+                        <th><?php echo $this->Paginator->sort('active', 'Ativo');?></th>
+			<th><?php echo $this->Paginator->sort('created', 'Data cadastro');?></th>
+<!--			<th class="actions"><?php  echo __('Ações');?></th>-->
+	</tr>
+	<?php
+	foreach ($users as $user): ?>
+	<tr>
+		<td>
+			<?php echo $user['Group']['name']; ?>
+		</td>
+		<td><?php echo h($user['User']['name']); ?>&nbsp;</td>
+		<td><?php echo h($user['User']['surname']); ?>&nbsp;</td>
+                <td><?php echo h($user['User']['active']) == '1'? "Sim": "Não"; ?>&nbsp;</td>
+		<td><?php echo $this->Time->format('d/m/Y', h($user['User']['created'])) ;?>&nbsp;</td>
+<!--		<td class="actions">
+			<?php echo $this->Html->link(__('View'), array('action' => 'view', $user['User']['id'])); ?>
+			<?php echo $this->Html->link(__('Edit'), array('action' => 'edit', $user['User']['id'])); ?>
+			<?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $user['User']['id']), null, __('Are you sure you want to delete # %s?', $user['User']['id'])); ?>
+		</td>-->
+	</tr>
+<?php endforeach; ?>
+	</table>
+	<p>
+	<?php
+	echo $this->Paginator->counter(array(
+	'format' => __('Página {:page} de {:pages}, mostrando {:current} registros de {:count} ao total, iniciando no registro {:start}, terminando em {:end}')
+	));
+	?>	</p>
+
+	<div class="paging">
+	<?php
+		echo $this->Paginator->prev('< ' . __('anterriror'), array(), null, array('class' => 'prev disabled'));
+		echo " ";
+                echo $this->Paginator->numbers(array('separator' => ''));
+		echo $this->Paginator->next(__('próximo') . ' >', array(), null, array('class' => 'next disabled'));
+	?>
+	</div>
+</div>
+<script type="text/javascript">
+    $('.usu_lista').addClass('active');
+    $('.usu_lista').siblings().removeClass('active');
+</script>

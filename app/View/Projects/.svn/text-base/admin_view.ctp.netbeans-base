@@ -1,0 +1,251 @@
+<div class="projects view">
+<h2><?php  echo __('Project'); ?></h2>
+	<dl>
+		<dt><?php echo __('Id'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['id']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Proposal'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($project['Proposal']['id'], array('controller' => 'proposals', 'action' => 'view', $project['Proposal']['id'])); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Project Status'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($project['ProjectStatus']['id'], array('controller' => 'project_statuses', 'action' => 'view', $project['ProjectStatus']['id'])); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Teacher Name Coparticipant'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['teacher_name_coparticipant']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Objectives'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['objectives']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Ethics Committee Name'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['ethics_committee_name']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Ethics Committee Protocol'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['ethics_committee_protocol']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Executive Summary'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['executive_summary']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Justification'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['justification']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Methodology'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['methodology']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Expected Results'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['expected_results']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Goals'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['goals']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Start Date'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['start_date']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('End Date'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['end_date']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Specification'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['specification']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Execution Plan'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['execution_plan']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Created'); ?></dt>
+		<dd>
+			<?php echo h($project['Project']['created']); ?>
+			&nbsp;
+		</dd>
+	</dl>
+</div>
+<div class="actions">
+	<h3><?php echo __('Actions'); ?></h3>
+	<ul>
+		<li><?php echo $this->Html->link(__('Edit Project'), array('action' => 'edit', $project['Project']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete Project'), array('action' => 'delete', $project['Project']['id']), null, __('Are you sure you want to delete # %s?', $project['Project']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('List Projects'), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Project'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Proposals'), array('controller' => 'proposals', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Proposal'), array('controller' => 'proposals', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Project Statuses'), array('controller' => 'project_statuses', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Project Status'), array('controller' => 'project_statuses', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Financial Resources'), array('controller' => 'financial_resources', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Financial Resource'), array('controller' => 'financial_resources', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Inscer Resources'), array('controller' => 'inscer_resources', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Inscer Resource'), array('controller' => 'inscer_resources', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Researchers Trainings'), array('controller' => 'researchers_trainings', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Researchers Training'), array('controller' => 'researchers_trainings', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Technical Teams'), array('controller' => 'technical_teams', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Technical Team'), array('controller' => 'technical_teams', 'action' => 'add')); ?> </li>
+	</ul>
+</div>
+<div class="related">
+	<h3><?php echo __('Related Financial Resources'); ?></h3>
+	<?php if (!empty($project['FinancialResource'])): ?>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php echo __('Id'); ?></th>
+		<th><?php echo __('Project Id'); ?></th>
+		<th><?php echo __('Institution'); ?></th>
+		<th><?php echo __('Value'); ?></th>
+		<th class="actions"><?php echo __('Actions'); ?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($project['FinancialResource'] as $financialResource): ?>
+		<tr>
+			<td><?php echo $financialResource['id']; ?></td>
+			<td><?php echo $financialResource['project_id']; ?></td>
+			<td><?php echo $financialResource['institution']; ?></td>
+			<td><?php echo $financialResource['value']; ?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View'), array('controller' => 'financial_resources', 'action' => 'view', $financialResource['id'])); ?>
+				<?php echo $this->Html->link(__('Edit'), array('controller' => 'financial_resources', 'action' => 'edit', $financialResource['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'financial_resources', 'action' => 'delete', $financialResource['id']), null, __('Are you sure you want to delete # %s?', $financialResource['id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('New Financial Resource'), array('controller' => 'financial_resources', 'action' => 'add')); ?> </li>
+		</ul>
+	</div>
+</div>
+<div class="related">
+	<h3><?php echo __('Related Inscer Resources'); ?></h3>
+	<?php if (!empty($project['InscerResource'])): ?>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php echo __('Id'); ?></th>
+		<th><?php echo __('Project Id'); ?></th>
+		<th><?php echo __('Resource Name'); ?></th>
+		<th class="actions"><?php echo __('Actions'); ?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($project['InscerResource'] as $inscerResource): ?>
+		<tr>
+			<td><?php echo $inscerResource['id']; ?></td>
+			<td><?php echo $inscerResource['project_id']; ?></td>
+			<td><?php echo $inscerResource['resource_name']; ?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View'), array('controller' => 'inscer_resources', 'action' => 'view', $inscerResource['id'])); ?>
+				<?php echo $this->Html->link(__('Edit'), array('controller' => 'inscer_resources', 'action' => 'edit', $inscerResource['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'inscer_resources', 'action' => 'delete', $inscerResource['id']), null, __('Are you sure you want to delete # %s?', $inscerResource['id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('New Inscer Resource'), array('controller' => 'inscer_resources', 'action' => 'add')); ?> </li>
+		</ul>
+	</div>
+</div>
+<div class="related">
+	<h3><?php echo __('Related Researchers Trainings'); ?></h3>
+	<?php if (!empty($project['ResearchersTraining'])): ?>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php echo __('Id'); ?></th>
+		<th><?php echo __('Project Id'); ?></th>
+		<th><?php echo __('Taining Name'); ?></th>
+		<th class="actions"><?php echo __('Actions'); ?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($project['ResearchersTraining'] as $researchersTraining): ?>
+		<tr>
+			<td><?php echo $researchersTraining['id']; ?></td>
+			<td><?php echo $researchersTraining['project_id']; ?></td>
+			<td><?php echo $researchersTraining['taining_name']; ?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View'), array('controller' => 'researchers_trainings', 'action' => 'view', $researchersTraining['id'])); ?>
+				<?php echo $this->Html->link(__('Edit'), array('controller' => 'researchers_trainings', 'action' => 'edit', $researchersTraining['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'researchers_trainings', 'action' => 'delete', $researchersTraining['id']), null, __('Are you sure you want to delete # %s?', $researchersTraining['id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('New Researchers Training'), array('controller' => 'researchers_trainings', 'action' => 'add')); ?> </li>
+		</ul>
+	</div>
+</div>
+<div class="related">
+	<h3><?php echo __('Related Technical Teams'); ?></h3>
+	<?php if (!empty($project['TechnicalTeam'])): ?>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php echo __('Id'); ?></th>
+		<th><?php echo __('Project Id'); ?></th>
+		<th><?php echo __('Participant Name'); ?></th>
+		<th><?php echo __('Participant Function'); ?></th>
+		<th><?php echo __('Participant Area'); ?></th>
+		<th><?php echo __('Participant Institution'); ?></th>
+		<th class="actions"><?php echo __('Actions'); ?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($project['TechnicalTeam'] as $technicalTeam): ?>
+		<tr>
+			<td><?php echo $technicalTeam['id']; ?></td>
+			<td><?php echo $technicalTeam['project_id']; ?></td>
+			<td><?php echo $technicalTeam['participant_name']; ?></td>
+			<td><?php echo $technicalTeam['participant_function']; ?></td>
+			<td><?php echo $technicalTeam['participant_area']; ?></td>
+			<td><?php echo $technicalTeam['participant_institution']; ?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View'), array('controller' => 'technical_teams', 'action' => 'view', $technicalTeam['id'])); ?>
+				<?php echo $this->Html->link(__('Edit'), array('controller' => 'technical_teams', 'action' => 'edit', $technicalTeam['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'technical_teams', 'action' => 'delete', $technicalTeam['id']), null, __('Are you sure you want to delete # %s?', $technicalTeam['id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('New Technical Team'), array('controller' => 'technical_teams', 'action' => 'add')); ?> </li>
+		</ul>
+	</div>
+</div>

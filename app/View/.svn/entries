@@ -1,0 +1,73 @@
+10
+
+dir
+30
+https://riouxsvn.com/svn/tccefr/port/app/View
+https://riouxsvn.com/svn/tccefr
+
+
+
+2012-10-23T20:20:56.131459Z
+30
+econte
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+efff8d9b-ca7c-4dd3-be68-6a7aa0392421
+
+Area
+dir
+
+Configurations
+dir
+
+Elements
+dir
+
+Emails
+dir
+
+Errors
+dir
+
+EvaluationCriteria
+dir
+
+EvaluationGroups
+dir
+
+Groups
+dir
+
+Helper
+dir
+
+Layouts
+dir
+
+Pages
+dir
+
+Projects
+dir
+
+Proposals
+dir
+
+Scaffolds
+dir
+
+Users
+dir
+

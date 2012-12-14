@@ -1,0 +1,249 @@
+<?php
+
+App::uses('AppController', 'Controller');
+
+class UsersController extends AppController {
+
+    var $helpers = array('Html', 'Form', 'Js');
+
+// ---------------- funcoes de autenticacao e controle de acesso -------------
+    public function login() {
+        $this->set('title_for_layout','SAPI - Login');
+        if ($this->request->is('post')) {
+            if ($this->Auth->login()) {
+                
+                $newUrl = $this->Auth->redirect();
+                
+                if ($this->Auth->user('group_id') == '4') {
+                    //if($newUrl == '/')
+                        $this->redirect(array('controller' => 'proposals', 'action' => 'index'));
+                }
+                if($this->Auth->user('group_id') == '3'){
+                    //if($newUrl == '/')
+                        $this->redirect(array('controller' => 'proposals', 'action' => 'pending_proposals'));
+                }
+                if($this->Auth->user('group_id') == '1'){
+                    //if($newUrl == '/')
+                        $this->redirect(array('controller' => 'pages', 'action' => 'administrative'));
+                }
+                if($this->Auth->user('group_id') == '2'){
+                    //if($newUrl == '/')
+                        $this->redirect(array('controller' => 'projects', 'action' => 'validate_project_list'));
+                }
+                
+                $this->redirect($this->Auth->redirect());
+            } else {
+                $this->Session->setFlash('<h3>A combinação e-mail e senha está incorreta.<h3>', 'default', array('class' => 'formee-msg-error message'));
+            }
+        }
+    }
+
+    public function logout() {
+        $this->redirect($this->Auth->logout());
+    }
+
+    public function beforeFilter() {
+        parent::beforeFilter();
+        $this->Auth->allow(array('add', 'logout', 'initDB', 'display','admin_logout', 'activate_user', 'recover_password','login'));
+    }
+
+// ---------------- funcoes de comportamento da página -------------
+    public function index() {
+        $this->User->recursive = 0;
+        $this->set('users', $this->paginate());
+    }
+
+    public function view($id = null) {
+        $this->User->id = $id;
+        if (!$this->User->exists()) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+        $this->set('user', $this->User->read(null, $id));
+    }
+
+    public function add() {
+        $this->set('title_for_layout','SAPI - Cadastre-se');
+        if ($this->request->is('post')) {
+            $this->User->create();
+            $aux = $this->request->data['User']['email'] . $this->request->data['User']['CPF'];
+            $this->request->data['User']['cpfEmailConfirm'] = hash('sha1',$aux);
+            if ($this->User->save($this->request->data)) {
+                $this->User->sendConfirmationEmail($this->request->data['User']['cpfEmailConfirm'],
+                                                   $this->request->data['User']['name'],
+                                                   $this->request->data['User']['email']);
+
+                $this->Session->setFlash('<h3>Seu processo de registro está quase terminado, precisamos que você acesse o e-mail cadastrado e confirme sua inscrição.<h3>', 'default', array('class' => 'formee-msg-info message'));
+                $this->redirect(array('controller' => 'users', 'action' => 'index'));
+            } 
+        }
+    }
+
+    public function edit($id = null) {
+        $this->User->id = $id;
+        if (!$this->User->exists()) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+        if ($this->request->is('post') || $this->request->is('put')) {
+            if ($this->User->save($this->request->data)) {
+                $this->Session->setFlash(__('The user has been saved'));
+                $this->redirect(array('action' => 'index'));
+            } else {
+                $this->Session->setFlash(__('The user could not be saved. Please, try again.'));
+            }
+        } else {
+            $this->request->data = $this->User->read(null, $id);
+        }
+        $groups = $this->User->Group->find('list');
+        $this->set(compact('groups'));
+    }
+
+    public function delete($id = null) {
+        if (!$this->request->is('post')) {
+            throw new MethodNotAllowedException();
+        }
+        $this->User->id = $id;
+        if (!$this->User->exists()) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+        if ($this->User->delete()) {
+            $this->Session->setFlash(__('User deleted'));
+            $this->redirect(array('action' => 'index'));
+        }
+        $this->Session->setFlash(__('User was not deleted'));
+        $this->redirect(array('action' => 'index'));
+    }
+
+    public function activate_user($hash) {
+        //verifica se e-mail já foi confirmado
+        $user = $this->User->find('first',array(
+            'conditions' => array('User.cpfEmailConfirm' => $hash),
+            'recursive' => -1
+        ));
+        //se usuário ainda não ativo
+        if (!empty($user) && $user['User']['active'] == '') {
+            //seta como ativo
+            $this->User->id = $user['User']['id'];
+            //LOGA O USUARIO AUTOMATICAMENTE
+            if ($this->User->save(array('active' => '1'))) { 
+                $this->Auth->login($user['User']);
+                $this->redirect(array('controller' => 'proposals', 'action' => 'index'));
+            }
+        }
+        else{
+            $this->Session->setFlash('<h3>Usuário não encontrado ou já registrado.<h3>', 'default', array('class' => 'formee-msg-info message'));
+            $this->redirect(array('controller' => 'users', 'action' => 'login'));
+        }
+    }
+
+    public function admin_login() {
+        if ($this->request->is('post')) {
+            if ($this->Auth->login()) {
+                if ($this->Auth->user('group_id') == '1') {
+                    $this->redirect(array('controller' => 'pages', 'action' => 'admin_home'));
+                }
+                if ($this->Auth->user('group_id') == '3') {
+                    $this->redirect(array('controller' => 'proposals', 'action' => 'pending_proposals'));
+                }
+            } else {
+                $this->Session->setFlash('Your username or password was incorrect.');
+            }
+        }
+    }
+    
+    public function admin_logout() {
+        $this->redirect($this->Auth->logout());
+    }
+    
+    public function admin_add(){
+        $this->layout = "default_admin";
+        if ($this->request->is('post')) {
+            $this->User->create();
+            $aux = $this->request->data['User']['email'] . $this->request->data['User']['CPF'];
+            $this->request->data['User']['cpfEmailConfirm'] = hash('sha1',$aux);
+            if ($this->User->save($this->request->data)) {
+                $this->Session->setFlash('<h3>Usuário inserido com sucesso!.<h3>', 'default', array('class' => 'formee-msg-info message'));
+                $this->redirect(array('action' => 'admin_index'));
+            } 
+        }
+        $this->loadModel('Group');
+        $groups = $this->Group->find('list', array(
+            'conditions' => array('Group.id' => array(1,2,3)), 
+            'recursive' => -1));
+        $this->set(compact('groups'));
+    }
+    
+    public function admin_index(){
+        $this->layout = "default_admin";
+        $this->User->recursive = 0;
+        $this->set('users', $this->paginate());
+    }
+
+
+    public function change_researcher_password($id = null){
+        $this->layout = "default_pesquisador";
+    }
+    
+    public function recover_password() {
+        $this->set('title_for_layout', 'SAPI - Recuperar Senha');
+        if ($this->request->is('post') || $this->request->is('put')) {
+            $data = $this->request->data;
+            //ENCONTRA O USUÁRIO COM O CPF E O EMAIL
+            $user = $this->User->find('first', array(
+                'fields' => array('User.id', 'User.email', 'User.name'),
+                'conditions' => array('User.CPF' => $data['User']['CPF'], 'User.email' => $data['User']['email']),
+                'recursive' => -1
+                    ));
+
+            if ($user) {
+                //GERA A NOVA SENHA
+                $pass = $this->User->generatePassword();
+                $criptedPass = AuthComponent::password($pass);
+                
+                //SALVA A NOVA SENHA PARA O USUARIO
+                $sql = 'UPDATE `inscer`.`users`
+                        SET `password` = \'' . $criptedPass . '\'
+                        WHERE `users`.`id` = ' . $user['User']['id'] . ';';
+
+                $this->User->query($sql);
+
+                //ENVIA E-MAIL PARA USUARIO
+                if($this->User->sendNewPassEmail($pass, $user['User']['name'], $user['User']['email'])){
+                    $this->Session->setFlash('<h3>A nova senha foi enviada para seu e-mail.<h3>', 'default', array('class' => 'formee-msg-info message'));
+                    $this->redirect(array('action' => 'recover_password'));
+                }else{
+                    $this->Session->setFlash('<h3>Sua nova senha é: "'.$pass.'".<h3>', 'default', array('class' => 'formee-msg-info message'));
+                    $this->redirect(array('action' => 'recover_password'));
+                }
+                
+            } else {
+                $this->Session->setFlash('<h3>Nenhum usuário encontrado.<h3>', 'default', array('class' => 'formee-msg-error message'));
+                $this->redirect(array('action' => 'recover_password'));
+            }
+        }
+    }
+
+// ------------------------- temp -------------------------
+    public function initDB() {
+$group = $this->User->Group;
+////Allow admins to everything
+$group->id = 4;
+$this->Acl->allow($group, 'controllers/Proposals/resend');
+
+//$group->id = 2;
+//$this->Acl->allow($group, 'controllers/Projects/admin_portfolio_projects');
+//
+//$group->id = 3;
+//$this->Acl->allow($group, 'controllers/Projects/admin_portfolio_projects');
+//$this->Acl->allow($group, 'controllers/EvaluationCriteria/admin_add');
+//$this->Acl->allow($group, 'controllers/EvaluationCriteria/admin_edit');
+//$this->Acl->allow($group, 'controllers/EvaluationCriteria/admin_delete');
+//$this->Acl->allow($group, 'controllers/EvaluationCriteria/admin_view');
+////$this->User->sendConfirmationEmail('bs89BYS89BSY9b8yYB9Oy89By98B8Y9b89sybsb8y998BSY','Endrigo Conte', 'endrigo.conte@gmail.com');
+        echo "<br /> all done";
+        
+ //       $this->set('porcento', 60);
+        exit;
+    }
+
+// --------------------------- temp -------------------------
+}

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/tccefr/!svn/ver/27/port/app/View/Configurations
+END
+admin_add.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/tccefr/!svn/ver/41/port/app/View/Configurations/admin_add.ctp
+END
+admin_index.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/tccefr/!svn/ver/27/port/app/View/Configurations/admin_index.ctp
+END
+admin_view.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/tccefr/!svn/ver/27/port/app/View/Configurations/admin_view.ctp
+END
+admin_edit.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/tccefr/!svn/ver/41/port/app/View/Configurations/admin_edit.ctp
+END

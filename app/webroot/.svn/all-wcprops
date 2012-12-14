@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/tccefr/!svn/ver/26/port/app/webroot
+END
+favicon.ico
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/tccefr/!svn/ver/3/port/app/webroot/favicon.ico
+END
+test.php
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/tccefr/!svn/ver/3/port/app/webroot/test.php
+END
+index.php
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/tccefr/!svn/ver/3/port/app/webroot/index.php
+END
+.htaccess
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/tccefr/!svn/ver/3/port/app/webroot/.htaccess
+END

@@ -1,0 +1,325 @@
+<?php
+
+App::uses('AppController', 'Controller');
+App::uses('CakeEmail', 'Network/Email');
+
+class SystemTasksController extends AppController {
+
+    //put your code here
+    public function beforeFilter() {
+        parent::beforeFilter();
+        $this->Auth->allow(array('*'));
+    }
+
+    //OS MÉTODOS A SEGUIR SÃO PARA SATISFAZER O CASO DE USO 08
+    //DISPARA OS MÉTODOS ABAIXO.
+
+    public function evaluate_proposals() {
+        $this->checkFullEvaluation();
+        //ENVIA E-MAILS PARA PESQUISADORES AVISANDO QUE A PROPOSTA FOI SUBMETIDA.
+        echo 'done';
+        exit;
+    }
+
+    //1 - BUSCA TODAS AS PROPOSTAS QUE NÃO TENHAM SIDO AVALIADAS
+    private function getNotRatedProposals() {
+        try {
+            $this->loadModel('Proposal');
+            $propostas = $this->Proposal->find('all', array(
+                'fields' => array('Proposal.id', 'Proposal.user_id', 'Proposal.notified', 'User.name', 'User.email', 'User.surname'),
+                'conditions' => array('Proposal.evaluation' => 'NA', 'Proposal.notified' => '0'),
+                'recursive' => 0
+                    ));
+
+            return $propostas;
+        } catch (Exception $exc) {
+            return null;
+        }
+    }
+
+    //2 - PARA CADA PROPOSTA QUE AINDA NAO STÁ COM O STATUS DE AVALIADA
+    // VERIFICA SE JÁ FOI COMPLETAMENTE AVALIADA, SE SIM PASSA PARA O PRÓXIMO PASSO.
+    private function checkFullEvaluation() {
+        $propostas = $this->getNotRatedProposals();
+
+        if ($propostas != null) {
+
+            foreach ($propostas as $proposta) {
+                if ($this->isProposalFullyEvaluated($proposta['Proposal']['id'])) {
+                    // 3 - SE A PROPOSTA FOI COMPLETAMENTE AVALIADA, ATRIBUI A AVALIAÇÃO
+                    $this->setFinalEvaluation($proposta['Proposal']['id']);
+                }
+            }
+        } else {
+            //ERRO NO MÉTODO ANTERIOR, TRATAR
+        }
+    }
+
+    private function isProposalFullyEvaluated($proposalID) {
+        $query = "select count(*) as contagem from proposal_user_evaluations where proposal_id = " . $proposalID
+                . " and evaluation_date is null and evaluation = 'NA'";
+        $qtd = $this->SystemTask->query($query);
+
+        if ($qtd[0][0]['contagem'] == '0')
+            return true;
+        else
+            return false;
+    }
+
+    // 3 - MÉTODO QUE ATRIBUI À UMA PROPOSTA SUA AVALIACAO FINAL - INÍCIO
+
+    public function setFinalEvaluation($proposalID = null) {
+        $sqlPercentual = "SELECT retention_percentage FROM configuration LIMIT 1";
+        $sqlAprovado = "select count(*) as aprovada from proposal_user_evaluations where proposal_id = " . $proposalID . " and evaluation_date is not null and evaluation = 'APROVADA'";
+        $sqlReanalise = "select count(*) as reanalise from proposal_user_evaluations where proposal_id = " . $proposalID . " and evaluation_date is not null and evaluation = 'REANALISE'";
+        $sqlReprovada = "select count(*) as reprovada from proposal_user_evaluations where proposal_id = " . $proposalID . " and evaluation_date is not null and evaluation = 'REPROVADA'";
+        $sqlTotal = "select count(*) as contagem from proposal_user_evaluations where proposal_id = " . $proposalID;
+
+        $contagem = $this->SystemTask->query($sqlTotal);
+        $contagem = $contagem[0][0]['contagem'];
+
+        $aprovada = $this->SystemTask->query($sqlAprovado);
+        $aprovada = $aprovada[0][0]['aprovada'];
+
+        $reanalise = $this->SystemTask->query($sqlReanalise);
+        $reanalise = $reanalise[0][0]['reanalise'];
+
+        $reprovada = $this->SystemTask->query($sqlReprovada);
+        $reprovada = $reprovada[0][0]['reprovada'];
+
+        $porcentoDeRetencao = $this->SystemTask->query($sqlPercentual);
+        $porcentoDeRetencao = $porcentoDeRetencao[0]['configuration']['retention_percentage'];
+
+
+        $avaliacao = $this->returnEvaluationStatus($porcentoDeRetencao, $contagem, $aprovada, $reanalise, $reprovada);
+
+        $sqlUpdate = "UPDATE proposals
+                      SET
+                      evaluation = '" . $avaliacao . "'
+                      WHERE ID = " . $proposalID;
+
+        $this->SystemTask->query($sqlUpdate);
+    }
+
+    private function returnEvaluationStatus($porcentoDeRetencao, $contagem, $aprovada, $reanalise, $reprovada) {
+        //FAZ A REGRA DOS 3 PARA APROVADA, CASO ESTE STATUS >= AO PERCENTUAL DE RETENÇÃ0
+        if ($this->ruleOfThree($porcentoDeRetencao, $contagem, $aprovada)) {
+            return "APROVADA";
+        }
+        //CASO CONTRÁRIO, RETORNA O STATUS QUE TEM MAIOR PERCENTUAL
+        else {
+            $auxReanalise = $this->ruleOfThreeValue($contagem, $reanalise);
+            $auxReprovada = $this->ruleOfThreeValue($contagem, $reprovada);
+
+            if ($auxReanalise > $auxReprovada) {
+                return "REANALISE";
+            } elseif ($auxReanalise < $auxReprovada) {
+                return "REPROVADA";
+            } elseif ($auxReanalise == $auxReprovada) {
+                return "REANALISE";
+            }
+        }
+    }
+
+    private function ruleOfThree($porcentoDeRetencao, $contagem, $contagemAvaliacao) {
+        if ((($contagemAvaliacao * 100) / $contagem) >= $porcentoDeRetencao)
+            return true;
+        else
+            return false;
+    }
+
+    private function ruleOfThreeValue($contagem, $contagemAvaliacao) {
+        return (($contagemAvaliacao * 100) / $contagem);
+    }
+
+    // 3 - MÉTODO QUE ATRIBUI À UMA PROPOSTA SUA AVALIACAO FINAL - FIM
+    //MANDA E-MAIL PARA OS PESQUISADORES CASO SUAS PROPOSTAS FOREM AVALIADAS
+    public function notifyResearchersProposals() {
+        //SELECIONA AS PROPOSTAS JÁ AVALIADAS E NAO NOTIIFICADAS
+        $this->loadModel('Proposal');
+        $propostas = $this->Proposal->find('all', array(
+            'fields' => array('Proposal.id', 'Proposal.user_id', 'Proposal.notified', 'User.name', 'User.email', 'User.surname'),
+            'conditions' => array('Proposal.evaluation != \'NA\'', 'Proposal.notified' => '0'),
+            'recursive' => 0
+                ));
+
+        echo '<pre>';
+        print_r($propostas);
+        echo '</pre>';
+
+        exit;
+    }
+
+    //OS MÉTODOS A SEGUIR SÃO PARA SATISFAZER O CASO DE USO 10
+    //DISPARA OS MÉTODOS DA AVALIACAO DOS PROJETOS
+
+    public function evaluate_projects() {
+        $projects = $this->getNotRatedProjects();
+
+        foreach ($projects as $project) {
+            if ($this->checkFullEvaluatedProject($project['Project']['id'])) {
+                $this->calculateFinalCriteriaScore($project['Project']['id']);
+                $this->sumAndSetEvaluationScore($project['Project']['id']);
+                $this->sumAndSetEvaluationFinalScore($project['Project']['id']);
+                $this->setProjectStatus($project['Project']['id']);
+            }
+        }
+    }
+
+    //1 - SISTEMA RECUPERA TODOS OS PROJETOS QUE AINDA NÀO FORAM AVALIADOS.
+    private function getNotRatedProjects() {
+        try {
+            $this->loadModel('Project');
+
+            return $this->Project->find('all', array(
+                        'fields' => array('id', 'created'),
+                        'conditions' => array('project_status_id' => 1, 'final_score' => null),
+                        'recursive' => -1
+                    ));
+        } catch (Exception $exc) {
+            return null;
+        }
+    }
+
+    //2 - O SISTEMA VERIFICA SE TODOS INTEGRANTES DA COMISSAO AVALIARAM O PROJETO.
+    //VERIFICACAO É FEITA SE A DATA DE AVALIACAO E AVALIACAO TEXTUAL NAO ESTAO PRESENTES
+    private function checkFullEvaluatedProject($projectId) {
+        $this->loadModel('ProjectsCommiteeMemberEvaluation');
+
+        $count = $this->ProjectsCommiteeMemberEvaluation->find('count', array(
+            'conditions' => array('project_id' => $projectId, 'evaluation_date' => null, 'text_evaluation' => null),
+            'recursive' => -1
+                ));
+
+        if ($count > 0)
+            return false;
+        else
+            return true;
+    }
+
+    //3 - O SISTEMA CALCULA AS NOTAS FINAIS DE CADA REQUISITO, PARA CADA AVALIACAO DE UM 
+    //MEMBRO DA COMISSAO, MULTIPLICANDO A NOTA ATRIBUIDA COM A DISTRIBUICAO.
+    private function calculateFinalCriteriaScore($projectId) {
+        $this->loadModel('ProjectsCommiteeMemberEvaluation');
+        $this->loadModel('MembersScoresByCriterium');
+
+        //COM O ID DO PROJETO, RECUPERA AS AVALIACOES DOS MEMBROS DO COMITE
+        $evaluations = $this->ProjectsCommiteeMemberEvaluation->find('all', array(
+            'fields' => array('id'),
+            'conditions' => array('project_id' => $projectId),
+            'recursive' => -1
+                ));
+
+        //PARA CADA AVALIACAO, RECUPERA AS NOTAS ATRIBUIDAS
+        foreach ($evaluations as $evaluation) {
+            //RECUPERA AS NOTAS DOS CRITERIOS DO PESQUISADOR
+            $scores = $this->MembersScoresByCriterium->find('all', array(
+                'conditions' => array('project_commitee_member_evaluation_id' => $evaluation['ProjectsCommiteeMemberEvaluation']['id']),
+                'recursive' => -1
+                    ));
+
+            //PARA CADA UMA DAS NOTAS ATRIBUIDAS, CALCULA A NOTA FINA (SCORE*DISTRIBUTION)
+            $this->loadModel('EvaluationCriterium');
+            foreach ($scores as $score) {
+                //RECUPERA A DISTRIBUICAO DO CRITERIO
+                $criterium = $this->EvaluationCriterium->find('first', array(
+                    'fields' => array('id', 'distribution'),
+                    'conditions' => array('id' => $score['MembersScoresByCriterium']['evaluation_criterion_id'])
+                        ));
+                //ATRIBUI A NOTA FINAL E SALVA
+                $this->MembersScoresByCriterium->id = $score['MembersScoresByCriterium']['id'];
+                $score['MembersScoresByCriterium']['final_criteria_score'] = ($criterium['EvaluationCriterium']
+                        ['distribution'] * $score['MembersScoresByCriterium']['score']);
+
+                $this->MembersScoresByCriterium->save($score);
+            }
+        }
+    }
+
+    //4 - O SISTEMA ENTAO SOMA AS NOTAS DOS CRITERIOS E ATRIBUI O VALOR A AVALIACAO DO PESQUISADOR.
+    private function sumAndSetEvaluationScore($projectId) {
+        $this->loadModel('ProjectsCommiteeMemberEvaluation');
+        $this->loadModel('MembersScoresByCriterium');
+
+        $evaluations = $this->ProjectsCommiteeMemberEvaluation->find('all', array(
+            'fields' => array('id'),
+            'conditions' => array('project_id' => $projectId),
+            'recursive' => -1
+                ));
+
+        //PARA CADA CRITERIO, SOMA E ATRIBUI O VALOR FINAL À AVALIACAO
+        foreach ($evaluations as $evaluation) {
+            $sumFinalScore = $this->MembersScoresByCriterium->find('all', array(
+                'fields' => array('sum(final_criteria_score) as final_score'),
+                'conditions' => array('project_commitee_member_evaluation_id' => $evaluation['ProjectsCommiteeMemberEvaluation']['id']),
+                'recursive' => -1
+                    ));
+
+            $this->ProjectsCommiteeMemberEvaluation->id = $evaluation['ProjectsCommiteeMemberEvaluation']['id'];
+            $evaluation['ProjectsCommiteeMemberEvaluation']['evaluation_final_score'] = $sumFinalScore[0][0]['final_score'];
+            $this->ProjectsCommiteeMemberEvaluation->save($evaluation);
+        }
+    }
+
+    // 5 - O SISTEMA SOMA AS NOTAS DE CADA AVALIADOR E CALCULA A MEDIA E ATRIBUI A MÉDIA FINAL AO PROJETO.
+    private function sumAndSetEvaluationFinalScore($projectId) {
+        $this->loadModel('ProjectsCommiteeMemberEvaluation');
+        $this->loadModel('Project');
+
+        //CONTA A QUANTIDADE DE AVALIADORES
+        $count = $this->ProjectsCommiteeMemberEvaluation->find('count', array(
+            'conditions' => array('project_id' => $projectId),
+            'recursive' => -1
+                ));
+
+        $sumFinalScore = $this->ProjectsCommiteeMemberEvaluation->find('all', array(
+            'fields' => array('sum(evaluation_final_score) as final_score'),
+            'conditions' => array('project_id' => $projectId),
+            'recursive' => -1
+                ));
+
+        $sumFinalScore = $sumFinalScore[0][0]['final_score'];
+
+        $average = ($sumFinalScore / $count);
+
+
+        $project = $this->Project->find('first', array(
+            'conditions' => array('id' => $projectId),
+            'recursive' => -1
+                ));
+
+        $this->Project->id = $project['Project']['id'];
+        $project['Project']['final_score'] = $average;
+
+        $this->Project->save($project);
+    }
+
+    //6 - O SISTEMA VERIFICA SE A NOTA FINAL FOI IGUAL OU MAIOR QUE 80%, NESTE CASO O PROJETO É APROVADO.
+    private function setProjectStatus($projectId) {
+        $this->loadModel('Project');
+
+        $project = $this->Project->find('first', array(
+            'conditions' => array('id' => $projectId),
+            'recursive' => -1
+        ));
+        
+        $this->Project->id = $project['Project']['id'];
+        if($project['Project']['final_score'] >= 80){
+            $project['Project']['project_status_id'] = 2;
+        }else{
+            $project['Project']['project_status_id'] = 5;
+        }
+       
+        $this->Project->save($project);
+        
+        echo 'done';
+        exit();
+    }
+    
+    //7 - O SISTEMA ENVIA UM E-MAIL AO DIRETOR INFORMANDO QUE O PROJETO FOI APROVADO.
+    private function sendDirectorEmailProjectEvaluated($projectId) {
+        
+    }
+}
+
+?>

@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/tccefr/!svn/ver/30/port/app/Model
+END
+Configuration.php
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/tccefr/!svn/ver/36/port/app/Model/Configuration.php
+END
+FinancialResource.php
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/tccefr/!svn/ver/40/port/app/Model/FinancialResource.php
+END
+ProjectsCommiteeMemberEvaluation.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/tccefr/!svn/ver/45/port/app/Model/ProjectsCommiteeMemberEvaluation.php
+END
+AppModel.php
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/tccefr/!svn/ver/3/port/app/Model/AppModel.php
+END
+Project.php
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/tccefr/!svn/ver/46/port/app/Model/Project.php
+END
+MembersScoresByCriterium.php
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/tccefr/!svn/ver/46/port/app/Model/MembersScoresByCriterium.php
+END
+User.php
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/tccefr/!svn/ver/42/port/app/Model/User.php
+END
+ProjectStatus.php
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/tccefr/!svn/ver/39/port/app/Model/ProjectStatus.php
+END
+Area.php
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/tccefr/!svn/ver/11/port/app/Model/Area.php
+END
+EvaluationCriterium.php
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/tccefr/!svn/ver/36/port/app/Model/EvaluationCriterium.php
+END
+Group.php
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/tccefr/!svn/ver/3/port/app/Model/Group.php
+END
+Proposal.php
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/tccefr/!svn/ver/45/port/app/Model/Proposal.php
+END
+EvaluationGroup.php
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/tccefr/!svn/ver/45/port/app/Model/EvaluationGroup.php
+END
+SystemTask.php
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/tccefr/!svn/ver/43/port/app/Model/SystemTask.php
+END

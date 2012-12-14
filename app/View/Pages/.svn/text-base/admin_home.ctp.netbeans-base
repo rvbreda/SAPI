@@ -1,0 +1,23 @@
+<style type="text/css">
+    #actionMenuAdmin{
+        width: 130px;
+    }
+    
+    #actionMenuAdmin li{
+        cursor: pointer;
+        padding: 3px;
+        background-color: #CCC;
+        font-size: 1em;
+        list-style: none;
+        margin-bottom: 2px;
+    }
+    
+     #actionMenuAdmin li:hover{
+        cursor: pointer;
+        padding: 3px;
+        background-color: #999;
+        font-size: 1em;
+        list-style: none;
+        margin-bottom: 2px;
+    }
+</style>

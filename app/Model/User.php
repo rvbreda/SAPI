@@ -1,0 +1,309 @@
+<?php
+
+App::uses('AppModel', 'Model');
+App::uses('AuthComponent', 'Controller/Component');
+App::uses('CakeEmail', 'Network/Email');
+
+class User extends AppModel {
+
+    public $actsAs = array('Acl' => array('type' => 'requester'));
+
+    /**
+     * Regras de validacao
+     */
+    public $validate = array(
+        'group_id' => array(
+            'numeric' => array(
+                'rule' => array('numeric'),
+                'message' => 'Por favor selecione o perfil de usuáio.',
+            ),
+            'notempty' => array(
+                'rule' => array('notempty'),
+            //  'message' => 'Por favor preencha seu nome.',
+            ),
+        ),
+        'name' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor preencha seu nome.',
+            ),
+        ),
+        'surname' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor preencha seu sobrenome.',
+            ),
+        ),
+        'email' => array(
+            'email' => array(
+                'rule' => array('email'),
+                'message' => 'Por favor insira um endereço de e-mail válido.',
+            ),
+            'match_emails' => array(
+                'rule' => 'matchemails',
+                'message' => 'Campos e-mail e confirmação não combinam.',
+                'on' => 'create'
+            )
+        ),
+        'email_confirm' => array(
+            'email' => array(
+                'rule' => array('email'),
+                'message' => 'Por favor insira um endereço de e-mail válido.',
+            ),
+        ),
+        'password' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor informe sua senha.',
+            ),
+            'maxength' => array(
+                'rule' => array('between', 6, 8),
+                'message' => 'Senha deve conter entre 6 e 8 caracteres.'
+            ),
+            'match_passwords' => array(
+                'rule' => 'matchpasswords',
+                'message' => 'Campos senha e confirmação não combinam.'
+            )
+        ),
+        'password_confirm' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor informe sua senha.',
+            ),
+            'maxength' => array(
+                'rule' => array('between', 6, 8),
+                'message' => 'Senha deve conter entre 6 e 8 caracteres.'
+            ),
+        ),
+        'CPF' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor informe seu CPF.',
+            ),
+            'isCpfValid' => array(
+                'rule' => 'validaCPF',
+                'message' => 'Por favor informe um número de CPF válido.'
+            ),
+            'CpfEmailIguais' => array(
+                'rule' => 'validaCpfEmail',
+                'message' => '',
+            )
+        ),
+        'old_password' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor preencha sua senha atual.',
+            ),
+        ),
+        'new_password' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor preencha sua nova senha.',
+            ),
+        ),
+        'new_password_confirm' => array(
+            'notempty' => array(
+                'rule' => array('notempty'),
+                'message' => 'Por favor preencha a confirmação de senha.',
+            ),
+        ),
+    );
+//Associacoes do modelo
+
+    public $belongsTo = array(
+        'Group' => array(
+            'className' => 'Group',
+            'foreignKey' => 'group_id',
+            'conditions' => '',
+            'fields' => '',
+            'order' => ''
+        )
+    );
+    public $hasMany = array(
+        'ProposalUserEvaluation' => array(
+            'className' => 'ProposalUserEvaluation',
+            'foreignKey' => 'user_id',
+            'dependent' => false,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'exclusive' => '',
+            'finderQuery' => '',
+            'counterQuery' => ''
+        ),
+        'Proposal' => array(
+            'className' => 'Proposal',
+            'foreignKey' => 'user_id',
+            'dependent' => false,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'exclusive' => '',
+            'finderQuery' => '',
+            'counterQuery' => ''
+        )
+    );
+
+    /**
+     * hasAndBelongsToMany associations
+     *
+     * @var array
+     */
+    public $hasAndBelongsToMany = array(
+        'EvaluationGroup' => array(
+            'className' => 'EvaluationGroup',
+            'joinTable' => 'evaluation_groups_users',
+            'foreignKey' => 'user_id',
+            'associationForeignKey' => 'evaluation_group_id',
+            'unique' => 'keepExisting',
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'finderQuery' => '',
+            'deleteQuery' => '',
+            'insertQuery' => ''
+        )
+    );
+
+// ------------------------ funcoes de validacao ------------------------
+
+    public function validaCpfEmail($data) {
+        $count = $this->find('count', array(
+            'fields' => array('User.id'),
+            'conditions' => array('User.cpfEmailConfirm' => $this->data['User']['cpfEmailConfirm'])
+                ));
+
+        if ($count > 0) {
+            $this->invalidate('CPF', 'Já existe uma inscrição utilizando o mesmo CPF e E-mail, utilize a opção "Recuperar Senha" na tela de login para recuperar sua senha.');
+
+            return false;
+        }
+        return true;
+    }
+
+    public function matchpasswords($data) {
+        if ($data['password'] == $this->data['User']['password_confirm']) {
+            return true;
+        }
+        $this->invalidate('password_confirm', 'Campos senha e confirmação não combinam.');
+        return false;
+    }
+
+    public function matchemails($data) {
+        if ($data['email'] == $this->data['User']['email_confirm']) {
+            return true;
+        }
+        $this->invalidate('email_confirm', 'Campos e-mail e confirmação não combinam.');
+        return false;
+    }
+
+    public function validaCPF($data) {
+// Verifiva se o número digitado contém todos os digitos
+        $cpf = str_pad(preg_replace('/[^0-9_]/', '', $data['CPF']), 11, '0', STR_PAD_LEFT);
+// Verifica se nenhuma das sequências abaixo foi digitada, caso seja, retorna falso
+        for ($x = 0; $x < 10; $x++) {
+            if ($cpf == str_repeat($x, 11)) {
+                return false;
+            }
+        }
+        if (strlen($cpf) != 11) {
+            return false;
+        } else {   // Calcula os números para verificar se o CPF é verdadeiro
+            for ($t = 9; $t < 11; $t++) {
+                for ($d = 0, $c = 0; $c < $t; $c++) {
+                    $d += $cpf{$c} * (($t + 1) - $c);
+                }
+
+                $d = ((10 * $d) % 11) % 10;
+
+                if ($cpf{$c} != $d) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+// --------------------- funcoes relativas a autenticacao e controle de acesso
+    //public function beforeSave( array $options){
+    function beforeSave($options = array()) {
+        $this->data['User']['password'] = AuthComponent::password($this->data['User']['password']);
+        return true;
+    }
+
+    public function parentNode() {
+        if (!$this->id && empty($this->data)) {
+            return null;
+        }
+        if (isset($this->data['User']['group_id'])) {
+            $groupId = $this->data['User']['group_id'];
+        } else {
+            $groupId = $this->field('group_id');
+        }
+        if (!$groupId) {
+            return null;
+        } else {
+            return array('Group' => array('id' => $groupId));
+        }
+    }
+
+    public function bindNode($user) {
+        return array('model' => 'Group', 'foreign_key' => $user['User']['group_id']);
+    }
+
+    public function generatePassword() {
+        $chars = 'A B C D E F G H I J K L M N O P Q R S T U V X Y W Z 0 1 2 3 4 5 6 7 8 9';
+        $chars = explode(' ', $chars);
+        $charsLength = count($chars);
+        $code = '';
+
+        for ($i = 0; $i < 6; $i++) {
+            $code .= $chars[rand(0, ($charsLength - 1))];
+        }
+
+        return $code;
+    }
+
+// --------------------funcoes de outros comportamentos ------------
+
+    public function sendConfirmationEmail($hash, $name, $emailEndereco) {
+        try {
+            $email = new CakeEmail('default');
+            $email->from('neurobase@pucrs.br', 'Instituto do Cérebro PUCRS')
+                    ->to($emailEndereco)
+                    ->subject('Bem-Vindo(a) ao SAPI')
+                    ->template('registration', 'inscer')
+                    ->emailFormat('both');
+            $email->viewVars(array('hash' => $hash, 'name' => $name));
+
+            $email->send();
+        } catch (Exception $exc) {
+            echo $exc->getMessage();
+        }
+    }
+
+    public function sendNewPassEmail($pass, $name, $emailEndereco) {
+        try {
+            $email = new CakeEmail('default');
+            $email->from('neurobase@pucrs.br', 'Instituto do Cérebro PUCRS')
+                    ->to($emailEndereco)
+                    ->subject('SAPI - Senha redefinida')
+                    ->template('newemail', 'inscer')
+                    ->emailFormat('both');
+            $email->viewVars(array('pass' => $pass, 'name' => $name));
+
+            $email->send();
+
+            return true;
+        } catch (Exception $exc) {
+            return false;
+        }
+    }
+
+}

@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/tccefr/!svn/ver/28/port/app/View/Emails/text
+END
+default.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/tccefr/!svn/ver/3/port/app/View/Emails/text/default.ctp
+END
+newproposal.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/tccefr/!svn/ver/45/port/app/View/Emails/text/newproposal.ctp
+END
+directornewproject.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/tccefr/!svn/ver/48/port/app/View/Emails/text/directornewproject.ctp
+END
+registration.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/tccefr/!svn/ver/28/port/app/View/Emails/text/registration.ctp
+END
+newproject.ctp
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/tccefr/!svn/ver/45/port/app/View/Emails/text/newproject.ctp
+END

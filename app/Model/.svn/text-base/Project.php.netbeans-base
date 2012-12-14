@@ -1,0 +1,100 @@
+<?php
+
+App::uses('AppModel', 'Model');
+
+class Project extends AppModel {
+
+    public $actsAs = array(
+        'Upload.Upload' => array(
+            'file' => array(
+                'fields' => array(
+                    'dir' => 'file_dir'
+                )
+            )
+        )
+    );
+    public $belongsTo = array(
+        'Proposal' => array(
+            'className' => 'Proposal',
+            'foreignKey' => 'proposal_id',
+            'conditions' => '',
+            'fields' => '',
+            'order' => ''
+        ),
+        'ProjectStatus' => array(
+            'className' => 'ProjectStatus',
+            'foreignKey' => 'project_status_id',
+            'conditions' => '',
+            'fields' => '',
+            'order' => ''
+        )
+    );
+    public $hasMany = array(
+        'FinancialResource' => array(
+            'className' => 'FinancialResource',
+            'foreignKey' => 'project_id',
+            'dependent' => false,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'exclusive' => '',
+            'finderQuery' => '',
+            'counterQuery' => ''
+        ),
+        'InscerResource' => array(
+            'className' => 'InscerResource',
+            'foreignKey' => 'project_id',
+            'dependent' => false,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'exclusive' => '',
+            'finderQuery' => '',
+            'counterQuery' => ''
+        ),
+        'ResearchersTraining' => array(
+            'className' => 'ResearchersTraining',
+            'foreignKey' => 'project_id',
+            'dependent' => false,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'exclusive' => '',
+            'finderQuery' => '',
+            'counterQuery' => ''
+        ),
+        'TechnicalTeam' => array(
+            'className' => 'TechnicalTeam',
+            'foreignKey' => 'project_id',
+            'dependent' => false,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'exclusive' => '',
+            'finderQuery' => '',
+            'counterQuery' => ''
+        )
+    );
+    
+    public $validate = array(
+    'file' => array(
+        'rule' => 'isUnderPhpSizeLimit',
+        'message' => 'Arquivo excede o tamanho máximo para upload'
+    ));
+    
+     public function localToMysql($dateTime) {
+        $date_chunks = explode('/', $dateTime);
+        $time_chunks = explode(' ', $date_chunks[2]);
+        $final_format = $time_chunks[0] . "-" . $date_chunks[1] . "-" . $date_chunks[0] . " " . $time_chunks[1];
+        return $final_format;
+    }
+
+}
